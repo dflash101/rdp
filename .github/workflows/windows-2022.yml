@@ -21,8 +21,10 @@ jobs:
 
       - name: Authenticate Ngrok
         run: |
-          cd ngrok
-          ./ngrok.exe authtoken ${{ secrets.TAKEN }}
+          ./ngrok.exe authtoken $Env:NGROK_AUTH
+          working-directory: ./ngrok
+          env:
+            NGROK_AUTH: ${{ secrets.TAKEN }}
 
       - name: Enable RDP
         run: |
