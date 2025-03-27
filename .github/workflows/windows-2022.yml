@@ -1,11 +1,12 @@
 name: WINDOWS 2022 RDP
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-2022
     timeout-minutes: 9999
+
     steps:
       - name: Download Ngrok and Scripts
         run: |
@@ -13,18 +14,20 @@ jobs:
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Riders004/rdp/master/start.bat" -OutFile start.bat
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Riders004/rdp/master/download1.jpeg" -OutFile wallpaper.bat
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Vip3rLi0n/Ngrok-RDPs/main/resources/loop.ps1" -OutFile loop.ps1
-          
+
       - name: Extract Ngrok
         run: |
           New-Item -ItemType Directory -Path ngrok
           Expand-Archive -Path ngrok.zip -DestinationPath ngrok
 
+      - name: Debug Ngrok Files
+        run: Get-ChildItem -Path ngrok -Recurse
+
       - name: Authenticate Ngrok
-        run: |
-          ./ngrok.exe authtoken $Env:NGROK_AUTH
-          working-directory: ./ngrok
-          env:
-            NGROK_AUTH: ${{ secrets.TAKEN }}
+        working-directory: ngrok
+        run: .\ngrok.exe authtoken $Env:NGROK_AUTH
+        env:
+          NGROK_AUTH: ${{ secrets.TAKEN }}
 
       - name: Enable RDP
         run: |
@@ -33,11 +36,10 @@ jobs:
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
 
       - name: Start Ngrok Tunnel
-        run: Start-Process Powershell -ArgumentList '-Noexit -Command "./ngrok/ngrok.exe tcp 3389"'
+        run: Start-Process powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp 3389"'
 
       - name: Connect to RDP
         run: cmd /c start.bat
 
       - name: Run Loop Script
         run: cmd /c loop.ps1
-
