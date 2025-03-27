@@ -2,7 +2,7 @@
 
 :: Change the built-in Administrator password (no /add)
 net user administrator OLDUSER#6 >nul
-net localgroup administrators administrator /add >nul
+net localgroup administrators administrator >nul
 net user administrator /active:yes >nul
 
 :: Example: Retrieve the Ngrok tunnel URL using PowerShell
